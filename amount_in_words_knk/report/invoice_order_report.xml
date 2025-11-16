@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="amount_to_words_invoice_report_knk" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[@id='payment_term']" position="after">
+                <div class="custom-amount-words mb-3">
+                    <p class="mb-0">
+                        <strong>Total (In words): </strong>
+                        <span t-field="o.amount_total_words"/>
+                    </p>                    
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

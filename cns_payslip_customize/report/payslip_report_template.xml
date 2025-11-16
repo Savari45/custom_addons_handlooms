@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paper_format_cns_payslip_pdf" model="report.paperformat">
+        <field name="name">CNS A4</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">4</field>
+        <field name="margin_right">4</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">35</field>
+        <field name="dpi">95</field>
+    </record>
+
+    <!-- 1. Landscape Paper Format -->
+    <!--    <record id="paper_format_cns_payslip_pdf" model="report.paperformat">-->
+    <!--        <field name="name">CNS A4</field>-->
+    <!--        <field name="default" eval="True"/>-->
+    <!--        <field name="format">A4</field>-->
+    <!--        <field name="page_height">0</field>-->
+    <!--        <field name="page_width">0</field>-->
+    <!--        <field name="orientation">Portrait</field>-->
+    <!--        <field name="margin_top">38</field>-->
+    <!--        <field name="margin_bottom">20</field>-->
+    <!--        <field name="margin_left">4</field>-->
+    <!--        <field name="margin_right">4</field>-->
+    <!--        <field name="header_line" eval="False"/>-->
+    <!--        <field name="header_spacing">35</field>-->
+    <!--        <field name="dpi">100</field>-->
+    <!--    </record>-->
+
+    <!-- 2. Report Action for CNS Payslip -->
+    <record id="action_report_cns_payslip" model="ir.actions.report">
+        <field name="name">CNS Payslip</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cns_payslip_customize.report_payslip</field>
+        <field name="report_file">cns_payslip_customize.report_payslip</field>
+        <field name="paperformat_id" ref="cns_payslip_customize.paper_format_cns_payslip_pdf"/>
+        <field name="binding_model_id" ref="payroll.model_hr_payslip"/>
+        <field name="print_report_name">'%s - Payslip' % (object.employee_id.name)</field>
+    </record>
+
+    <template id="report_payslip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <style>
+                        .payslip-container {
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        color: #000;
+                        font-size: 14px;
+                        }
+                        .payslip-title {
+                        text-align: center;
+                        margin: 15px 0;
+                        font-size: 20px;
+                        font-weight: bold;
+                        padding-bottom: 5px;
+                        }
+                        .info-table {
+                        width: 100%;
+                        border: 1px solid #999;
+                        border-collapse: collapse;
+                        margin-bottom: 15px;
+                        font-size: 14px;
+                        }
+                        .info-table td {
+                        padding: 6px;
+                        border: 1px solid #999;
+                        }
+                        .section-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        border: 1px solid #999;
+                        }
+                        .section-table th {
+                        background: #f5f5f5;
+                        font-weight: bold;
+                        padding: 6px;
+                        border: 1px solid #999;
+                        text-align: left;
+                        }
+                        .section-table td {
+                        padding: 6px;
+                        border: 1px solid #999;
+                        vertical-align: top;
+                        }
+                        /* Add vertical dark grey line between Earnings and Deductions */
+                        .divider-col {
+                        border-left: 1.5px solid #666 !important;
+                        }
+                        .amount-cell {
+                        text-align: right;
+                        }
+                        .total-row td {
+                        font-weight: bold;
+                        background: #fafafa;
+                        }
+                        .net-pay {
+                        margin-top: 15px;
+                        padding: 8px;
+                        border: 1px solid #999;
+                        background: #f8f8f8;
+                        font-size: 14px;
+                        font-weight: bold;
+                        }
+                        .amount-in-words {
+                        font-style: italic;
+                        margin-top: 5px;
+                        }
+                    </style>
+
+                    <div class="row">
+                        <div class="col-7" align="left">
+                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                 class="o_company_logo_big" alt="Logo"/>
+
+                        </div>
+                        <div class="col-5" align="right">
+                            <strong>
+                                <span t-field="o.company_id.name"/>
+                            </strong>
+                            <br/>
+                            <span t-field="o.company_id.street"/>
+                            <span t-field="o.company_id.street2"/>,
+                            <br/>
+                            <span t-field="o.company_id.city"/>
+                            <span t-field="o.company_id.state_id"/>
+                            <span t-field="o.company_id.country_id"/>
+                            <br/>
+                            <span t-field="o.company_id.phone"/>
+                        </div>
+                    </div>
+                    <br/>
+
+                    <div class="payslip-container">
+                        <!-- Payslip Title -->
+                        <div class="payslip-title">
+                            <span t-field="o.name"/>
+                        </div>
+
+                        <!-- Employee Information -->
+                        <table class="info-table">
+                            <tr>
+                                <td width="50%">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Name</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-field="o.employee_id.name"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Employee Code</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-field="o.employee_id.barcode"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Designation</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-field="o.employee_id.job_id"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Department</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-field="o.employee_id.department_id.name"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+                                </td>
+                                <td width="50%">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>No of Days Present</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <t t-foreach="o.worked_days_line_ids" t-as="line">
+                                                <t t-if="line.code == 'WORK100'">
+                                                    <span class="px-1" t-field="line.number_of_days"/>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Overtime</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-field="o.total_ot_hours"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>Total Days in Month :</strong>
+                                        </div>
+                                        <div class="col-6 ">
+                                            <span>:</span>
+                                            <span class="px-1" t-esc="(o.date_to - o.date_from).days + 1"/>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:4px"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Earnings & Deductions Side-by-Side -->
+                        <t t-set="earnings"
+                           t-value="o.line_ids.filtered(lambda l: l.category_id and l.category_id.code in ['BASIC','ALW'])"/>
+                        <t t-set="deductions"
+                           t-value="o.line_ids.filtered(lambda l: l.category_id and l.category_id.code in ['DED'])"/>
+                        <!--    without master start-->
+                        <!--                        <table class="section-table">-->
+                        <!--                            <tr>-->
+                        <!--                                <th width="20%">EARNINGS</th>-->
+                        <!--                                <th width="20%">MASTER</th>-->
+                        <!--                                <th width="20%" style="text-align:right;">AMOUNT</th>-->
+                        <!--                                <th width="20%" class="divider-col">DEDUCTIONS</th>-->
+                        <!--                                <th width="20%" style="text-align:right;">AMOUNT</th>-->
+                        <!--                            </tr>-->
+
+                        <!--                            <t t-set="max_len" t-value="max(len(earnings), len(deductions))"/>-->
+                        <!--                            <t t-foreach="range(max_len)" t-as="i">-->
+                        <!--                                <tr>-->
+                        <!--                                    &lt;!&ndash; Earnings &ndash;&gt;-->
+                        <!--                                    <td>-->
+                        <!--                                        <t t-if="i &lt; len(earnings)">-->
+                        <!--                                            <span t-field="earnings[i].name"/>-->
+                        <!--                                        </t>-->
+                        <!--                                    </td>-->
+                        <!--                                    <td class="amount-cell">-->
+                        <!--                                        <span t-esc="o.contract_id.wage"/>-->
+                        <!--                                        <span t-esc="o.contract_id.x_lunch_time_allowance"/>-->
+                        <!--                                        <span t-esc="o.contract_id.x_conveyance_allowance"/>-->
+                        <!--                                        <span t-esc="o.contract_id.x_house_allowance"/>-->
+                        <!--                                        <span t-esc="o.contract_id.x_cost_of_living_allowance"/>-->
+
+                        <!--                                    </td>-->
+                        <!--                                    <td class="amount-cell">-->
+                        <!--                                        <t t-if="i &lt; len(earnings)">-->
+                        <!--                                            <span t-field="earnings[i].amount"-->
+                        <!--                                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>-->
+                        <!--                                        </t>-->
+                        <!--                                    </td>-->
+
+                        <!--                                    &lt;!&ndash; Deductions &ndash;&gt;-->
+                        <!--                                    <td class="divider-col">-->
+                        <!--                                        <t t-if="i &lt; len(deductions)">-->
+                        <!--                                            <span t-field="deductions[i].name"/>-->
+                        <!--                                        </t>-->
+                        <!--                                    </td>-->
+                        <!--                                    <td class="amount-cell">-->
+                        <!--                                        <t t-if="i &lt; len(deductions)">-->
+                        <!--                                            <span t-field="deductions[i].amount"-->
+                        <!--                                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>-->
+                        <!--                                        </t>-->
+                        <!--                                    </td>-->
+                        <!--                                </tr>-->
+                        <!--                            </t>-->
+
+                        <!--                            &lt;!&ndash; Total Row &ndash;&gt;-->
+                        <!--                            <tr class="total-row">-->
+                        <!--                                <td>Total Earnings</td>-->
+                        <!--                                <td></td>-->
+                        <!--                                <td class="amount-cell">-->
+                        <!--                                    <span t-esc="sum(l.amount for l in earnings)"-->
+                        <!--                                          t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>-->
+                        <!--                                </td>-->
+                        <!--                                <td class="divider-col">Total Deductions</td>-->
+                        <!--                                <td class="amount-cell">-->
+                        <!--                                    <span t-esc="sum(l.amount for l in deductions)"-->
+                        <!--                                          t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>-->
+                        <!--                                </td>-->
+                        <!--                            </tr>-->
+                        <!--                        </table>-->
+
+                        <!--    without master end-->
+
+
+                        <!-- Earnings & Deductions Side-by-Side -->
+                        <t t-set="earnings"
+                           t-value="o.line_ids.filtered(lambda l: l.category_id and l.category_id.code in ['BASIC','ALW'])"/>
+                        <t t-set="deductions"
+                           t-value="o.line_ids.filtered(lambda l: l.category_id and l.category_id.code in ['DED'])"/>
+
+                        <table class="section-table">
+                            <tr>
+                                <th width="20%">EARNINGS</th>
+                                <th width="20%" style="text-align:right;">MASTER</th>
+                                <th width="20%" style="text-align:right;">AMOUNT</th>
+                                <th width="20%" class="divider-col">DEDUCTIONS</th>
+                                <th width="20%" style="text-align:right;">AMOUNT</th>
+                            </tr>
+
+                            <t t-set="max_len" t-value="max(len(earnings), len(deductions))"/>
+                            <t t-foreach="range(max_len)" t-as="i">
+                                <tr>
+                                    <!-- Earnings -->
+                                    <td>
+                                        <t t-if="i &lt; len(earnings)">
+                                            <span t-field="earnings[i].name"/>
+                                        </t>
+                                    </td>
+                                    <td class="amount-cell">
+                                        <t t-if="i &lt; len(earnings)">
+                                            <t t-set="earning_code" t-value="earnings[i].code"/>
+                                            <t t-if="earning_code == 'Basic'">
+                                                <span t-field="o.contract_id.wage"
+                                                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                            <t t-elif="earning_code == 'LTA'">
+                                                <span t-field="o.contract_id.x_lunch_time_allowance"
+                                                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                            <t t-elif="earning_code == 'CA'">
+                                                <span t-field="o.contract_id.x_conveyance_allowance"
+                                                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                            <t t-elif="earning_code == 'HA'">
+                                                <span t-field="o.contract_id.x_house_allowance"
+                                                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                            <t t-elif="earning_code == 'CLA'">
+                                                <span t-field="o.contract_id.x_cost_of_living_allowance"
+                                                      t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                        </t>
+                                    </td>
+                                    <td class="amount-cell">
+                                        <t t-if="i &lt; len(earnings)">
+                                            <span t-field="earnings[i].amount"
+                                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        </t>
+                                    </td>
+
+                                    <!-- Deductions -->
+                                    <td class="divider-col">
+                                        <t t-if="i &lt; len(deductions)">
+                                            <span t-field="deductions[i].name"/>
+                                        </t>
+                                    </td>
+                                    <td class="amount-cell">
+                                        <t t-if="i &lt; len(deductions)">
+                                            <span t-field="deductions[i].amount"
+                                                  t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Total Row - UNTOUCHED -->
+                            <tr class="total-row">
+                                <td>Total Earnings</td>
+                                <td></td>
+                                <td class="amount-cell">
+                                    <span t-esc="sum(l.amount for l in earnings)"
+                                          t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                </td>
+                                <td class="divider-col">Total Deductions</td>
+                                <td class="amount-cell">
+                                    <span t-esc="sum(l.amount for l in deductions)"
+                                          t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Net Pay -->
+                        <div class="net-pay">
+                            Net Salary Payable:
+                            <t t-foreach="o.line_ids" t-as="line">
+                                <t t-if="line.code == 'NET'">
+                                    <span t-field="line.amount"
+                                          t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                </t>
+                            </t>
+                            <div class="amount-in-words">
+                                Amount in Words:
+                                <strong>
+                                    <t t-foreach="o.line_ids" t-as="line">
+                                        <t t-if="line.code == 'NET'">
+                                            <span t-esc="res_company.currency_id.amount_to_text(line.amount)"/>
+                                        </t>
+                                    </t>
+                                </strong>
+                            </div>
+                        </div>
+                        <div style="text-align: right !important; margin-top: 65px;">
+                            <strong>Authorized signature</strong>
+
+                        </div>
+                        <div style="text-align: center; margin-top: 50px;">
+                            <strong>This is a digitally generated document and does not require a signature</strong>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+</odoo>
