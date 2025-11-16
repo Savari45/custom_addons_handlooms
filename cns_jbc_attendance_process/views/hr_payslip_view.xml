@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_form_inherit_shift" model="ir.ui.view">
+        <field name="name">hr.payslip.form.inherit.shift</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="payroll.hr_payslip_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='compute_date']" position="after">
+                <field name="total_days_in_month"/>
+                <field name="total_days_present"/>
+                <field name="lop"/>
+                <field name="total_ot_hours" widget="float_time"/>
+            </xpath>
+            <xpath expr="//page[3]" position="after">
+                <page name="leave" string="Late &amp; Permission">
+                    <group>
+                        <group>
+                            <group string="Attendance">
+                                <field name="paid_leave_count" invisible="1"/>
+                                <field name="permission_count" invisible="1"/>
+                                <field name="perm_hr" widget="float_time"/>
+                                <field name="late_hr" widget="float_time"/>
+                                <field name="lop_hours" widget="float_time"/>
+                                <field name="late_count"/>
+                            </group>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

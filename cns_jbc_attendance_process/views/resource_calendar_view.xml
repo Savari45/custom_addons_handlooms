@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ws_form_inherit" model="ir.ui.view">
+        <field name="name">resource.calendar.form.inherit</field>
+        <field name="model">resource.calendar</field>
+        <field name="inherit_id" ref="resource.resource_calendar_form"/>
+        <field name="arch" type="xml">
+            <group name="resource_details" position="inside">
+                <group>
+                    <field name="shift_start_time" widget="float_time"/>
+                    <field name="shift_end_time" widget="float_time"/>
+                </group>
+            </group>
+
+        </field>
+    </record>
+
+    <record id="view_leaves_form_inherit" model="ir.ui.view">
+        <field name="name">hr.leave.type.form.inherit</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+        <field name="arch" type="xml">
+            <field name="responsible_ids" position="after">
+                <field name="is_paid_leave"/>
+            </field>
+        </field>
+    </record>
+</odoo>

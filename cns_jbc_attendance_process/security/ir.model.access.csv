@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_contract_shift,contract.shift,model_contract_shift,base.group_user,1,1,1,1
+access_process_attendance,process.attendance,model_process_attendance,base.group_user,1,1,1,1
+access_process_attendance_lines,process.attendance.lines,model_process_attendance_lines,base.group_user,1,1,1,1

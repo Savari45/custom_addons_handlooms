@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_process_attendance_list" model="ir.ui.view">
+        <field name="name">process.attendance.list</field>
+        <field name="model">process.attendance</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="employee_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_process_attendance_form" model="ir.ui.view">
+        <field name="name">process.attendance.form</field>
+        <field name="model">process.attendance</field>
+        <field name="arch" type="xml">
+            <form string="Process Attendance">
+                <header>
+                    <button name="fetch_attendance" string="Process Attendance" type="object" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1" placeholder="Eg: January - 2025"/>
+                            <label for="start_date" string="Period"/>
+                            <div class="o_row">
+                                <field name="start_date" class="oe_inline" required="1" placeholder="Start Date"
+                                       widget="daterange" options="{'related_end_date': 'end_date'}"/>
+                                <span>To</span>
+                                <field name="end_date" class="oe_inline" required="1" placeholder="End Date"
+                                       options="{'related_start_date': 'start_date'}"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="employee_ids" widget="many2many_tags" placeholder="Select Employees"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Attendance Lines">
+                            <field name="attendance_line_ids" readonly="1" force_save="1">
+                                <list editable="bottom" create="0" delete="0"
+                                      decoration-success="attendance in ['present','paid_leave']"
+                                      decoration-danger="attendance == 'absent'"
+                                      decoration-info="attendance == 'public_holiday'"
+                                      decoration-warning="attendance == 'week_off'">
+                                    <field name="date" readonly="1" force_save="1"/>
+                                    <field name="employee_no" readonly="1" force_save="1"/>
+                                    <field name="employee_id" readonly="1" force_save="1"/>
+                                    <field name="resource_calendar_id" options="{'no_create' : True}" readonly="1" force_save="1"/>
+                                    <field name="check_in" readonly="1" force_save="1"/>
+                                    <field name="check_out" readonly="1" force_save="1"/>
+                                    <field name="worked_hours" widget="float_time" readonly="1" force_save="1"/>
+                                    <field name="permission_hours" widget="float_time"/>
+                                    <field name="permission_count"/>
+                                    <field name="leave_days"/>
+                                    <field name="leave_type" widget="many2many_tags"/>
+                                    <field name="late_hours" widget="float_time" readonly="1" force_save="1"/>
+                                    <field name="lop_hours" widget="float_time" readonly="1" force_save="1"/>
+                                    <field name="late_count" readonly="1" force_save="1"/>
+                                    <field name="ot_hours" widget="float_time"/>
+                                    <field name="attendance" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="action_process_attendance" model="ir.actions.act_window">
+        <field name="name">Process Attendance</field>
+        <field name="res_model">process.attendance</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_process_attendance_main"
+              name="Process Attendance"
+              parent="hr_attendance.menu_hr_attendance_root"
+              sequence="20"/>
+
+    <menuitem id="menu_process_attendance"
+              name="Process Attendances"
+              action="action_process_attendance"
+              parent="menu_process_attendance_main"
+              sequence="30"/>
+
+
+    <record id="view_process_attendance_lines_list" model="ir.ui.view">
+        <field name="name">process.attendance.lines.list</field>
+        <field name="model">process.attendance.lines</field>
+        <field name="arch" type="xml">
+            <list
+                    create="0" delete="0"
+                    decoration-success="attendance == 'present'"
+                    decoration-danger="attendance == 'absent'"
+                    decoration-info="attendance == 'public_holiday'"
+                    decoration-warning="attendance == 'week_off'">
+                <field name="date"/>
+                <field name="employee_no"/>
+                <field name="employee_id"/>
+<!--                <field name="shift_id"/>-->
+                <field name="resource_calendar_id" options="{'no_create' : True,'no_open' : True}"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="worked_hours" widget="float_time"/>
+                <field name="permission_hours" widget="float_time"/>
+                <field name="permission_count"/>
+                <field name="leave_days"/>
+                <field name="leave_type" widget="many2many_tags"/>
+                <field name="late_hours" widget="float_time"/>
+                <field name="lop_hours" widget="float_time"/>
+                <field name="late_count"/>
+                <field name="ot_hours" widget="float_time"/>
+                <field name="attendance"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_process_attendance_lines_search" model="ir.ui.view">
+        <field name="name">process.attendance.lines.search</field>
+        <field name="model">process.attendance.lines</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="employee_no"/>
+<!--                <field name="shift_id"/>-->
+                <field name="resource_calendar_id"/>
+                <field name="attendance"/>
+                <field name="date"/>
+
+                <filter string="Present" name="filter_present" domain="[('attendance','=','present')]"
+                        help="Employees marked as Present"/>
+                <filter string="Absent" name="filter_absent" domain="[('attendance','=','absent')]"
+                        help="Employees marked as Absent"/>
+                <filter string="Public Holiday" name="filter_public_holiday"
+                        domain="[('attendance','=','public_holiday')]" help="Public Holiday"/>
+                <filter string="Week Off" name="filter_week_off" domain="[('attendance','=','week_off')]"
+                        help="Weekly Off"/>
+
+                <group expand="1" string="Group By">
+                    <filter string="Employee" name="group_employee" domain="[]" context="{'group_by':'employee_id'}"/>
+<!--                    <filter string="Shift" name="group_shift" domain="[]" context="{'group_by':'shift_id'}"/>-->
+                    <filter string="Shift" name="group_work_shift" domain="[]" context="{'group_by':'resource_calendar_id'}"/>
+                    <filter string="Attendance" name="group_attendance" domain="[]"
+                            context="{'group_by':'attendance'}"/>
+                    <filter string="Date" name="group_date" domain="[]" context="{'group_by':'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_process_attendance_lines" model="ir.actions.act_window">
+        <field name="name">Attendance Report</field>
+        <field name="res_model">process.attendance.lines</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_group_employee': 1,'search_default_group_date': 1}</field>
+    </record>
+
+    <menuitem id="menu_process_attendance_lines"
+              name="Attendance Report"
+              action="action_process_attendance_lines"
+              parent="menu_process_attendance_main"
+              sequence="31"/>
+</odoo>
